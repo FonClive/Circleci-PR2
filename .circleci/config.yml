@@ -5,44 +5,34 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  #CreateInfrastructure:
+  CreateInfrastructure:
     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/configuration-reference/#executor-job
-    #docker:
-     # - image: amazon/aws-cli
-    # Add steps to the job
-    # See: https://circleci.com/docs/configuration-reference/#steps
-   # steps:
-     # - checkout
-     # - run:
-     #     name: "Create Cloudformation stack"
-    #      command: | 
-     #       aws cloudformation deploy \
-      #      --template-file ec2-template.yml \
-       #     --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-        #    --region us-east-1
-
- Configure_Infrastructure:
     docker:
-     - image: python:3.7-alpine3.11
-
-    steps: 
+     - image: amazon/aws-cli
+     #Add steps to the job
+     #See: https://circleci.com/docs/configuration-reference/#steps
+    steps:
       - checkout
-      - add_ssh_keys:  # Id can be gotten from the CircleCi took in the ssh section of the project
-          fingerprints: ["5c:fd:3b:0e:63:31:fc:83:ab:d9:40:16:a3:db:79:ed"]
       - run:
-         command: |
-            apk add --update ansible       
-     
-      - run:
-          name: Run playbook and configure server
-          command: |
-            ansible-playbook -i inventory.txt main.yml
+          name: "Create Cloudformation stack"
+          command: | 
+            aws cloudformation deploy \
+            --template-file ec2-template.yml \
+            --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+            --region us-east-1
+
+ 
+
+   
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
   MyworkFlows:
     jobs:
-      #-  CreateInfrastructure
-      -  Configure_Infrastructure
+      -  CreateInfrastructure
+     # -  Configure_Infrastructure
+      #-  Smoke_test:
+       #   requires:
+        #    - Configure_Infrastructure

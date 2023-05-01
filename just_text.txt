@@ -1,0 +1,34 @@
+Configure_Infrastructure:
+    docker:
+     - image: python:3.7-alpine3.11
+
+    steps: 
+      - checkout
+      - add_ssh_keys:  # Id can be gotten from the CircleCi took in the ssh section of the project
+          fingerprints: ["5c:fd:3b:0e:63:31:fc:83:ab:d9:40:16:a3:db:79:ed"]
+      - run:
+         command: |
+            apk add --update ansible       
+     
+      - run:
+          name: Run playbook and configure server
+          command: |
+            ansible-playbook -i inventory.txt main.yml
+
+  Smoke_test: 
+    docker: 
+      - image: alpine:latest 
+    
+    steps:
+      - checkout 
+      - run: apk add --update curl 
+      - run: 
+          name: Smoke test 
+          command: | 
+            URL="https://blog.udacity.com/"
+            if curl -s --head ${URL} 
+            then 
+            return 0 
+            else 
+            return 1
+            fi 
